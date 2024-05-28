@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -32,7 +35,7 @@ public class Serie {
     private String poster;
     private String sinopse;
 
-    @Transient
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episodio> episodios = new ArrayList<>();
     
     public Serie() {}
@@ -48,7 +51,25 @@ public class Serie {
     //    this.sinopse = ConsultaChatGPT.obterTraducao(dadosSerie.sinopse()).trim(); - com a sua chave  OPENAI, descomentar para traducao para portugues
     }
 
-    public String getTitulo() {
+    
+    public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public List<Episodio> getEpisodios() {
+		return episodios;
+	}
+
+	public void setEpisodios(List<Episodio> episodios) {
+		episodios.forEach(e -> e.setSerie(this));
+		this.episodios = episodios;
+	}
+
+	public String getTitulo() {
         return titulo;
     }
 
@@ -107,13 +128,14 @@ public class Serie {
     @Override
     public String toString() {
         return
-                "genero=" + genero +
+                		"genero=" + genero +
                         ", titulo='" + titulo + '\'' +
                         ", totalTemporadas=" + totalTemporadas +
                         ", avaliacao=" + avaliacao +
 
                         ", atores='" + atores + '\'' +
                         ", poster='" + poster + '\'' +
-                        ", sinopse='" + sinopse + '\'';
-    }
+                        ", sinopse='" + sinopse + '\'' +
+        				", episodios='" + episodios + '\'';
+    }	
 }
